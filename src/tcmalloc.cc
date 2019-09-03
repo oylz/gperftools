@@ -711,6 +711,14 @@ class TCMallocImplementation : public MallocExtension {
       return true;
     }
 
+    if (strcmp(name, "generic.total_physical_bytes") == 0) {
+      TCMallocStats stats;
+      ExtractStats(&stats, NULL, NULL, NULL);
+      *value = stats.pageheap.system_bytes + stats.metadata_bytes -
+               stats.pageheap.unmapped_bytes;
+      return true;
+    }
+
     if (strcmp(name, "tcmalloc.slack_bytes") == 0) {
       // Kept for backwards compatibility.  Now defined externally as:
       //    pageheap_free_bytes + pageheap_unmapped_bytes.
@@ -916,13 +924,13 @@ class TCMallocImplementation : public MallocExtension {
   }
 
   virtual void GetFreeListSizes(vector<MallocExtension::FreeListInfo>* v) {
-    static const char* kCentralCacheType = "tcmalloc.central";
-    static const char* kTransferCacheType = "tcmalloc.transfer";
-    static const char* kThreadCacheType = "tcmalloc.thread";
-    static const char* kPageHeapType = "tcmalloc.page";
-    static const char* kPageHeapUnmappedType = "tcmalloc.page_unmapped";
-    static const char* kLargeSpanType = "tcmalloc.large";
-    static const char* kLargeUnmappedSpanType = "tcmalloc.large_unmapped";
+    static const char kCentralCacheType[] = "tcmalloc.central";
+    static const char kTransferCacheType[] = "tcmalloc.transfer";
+    static const char kThreadCacheType[] = "tcmalloc.thread";
+    static const char kPageHeapType[] = "tcmalloc.page";
+    static const char kPageHeapUnmappedType[] = "tcmalloc.page_unmapped";
+    static const char kLargeSpanType[] = "tcmalloc.large";
+    static const char kLargeUnmappedSpanType[] = "tcmalloc.large_unmapped";
 
     v->clear();
 
@@ -1272,9 +1280,11 @@ void* handle_oom(malloc_fn retry_fn,
 
 // Copy of FLAGS_tcmalloc_large_alloc_report_threshold with
 // automatic increases factored in.
+#ifdef ENABLE_LARGE_ALLOC_REPORT
 static int64_t large_alloc_threshold =
   (kPageSize > FLAGS_tcmalloc_large_alloc_report_threshold
    ? kPageSize : FLAGS_tcmalloc_large_alloc_report_threshold);
+#endif
 
 static void ReportLargeAlloc(Length num_pages, void* result) {
   StackTrace stack;
@@ -1295,6 +1305,7 @@ static void ReportLargeAlloc(Length num_pages, void* result) {
 
 // Must be called with the page lock held.
 inline bool should_report_large(Length num_pages) {
+#ifdef ENABLE_LARGE_ALLOC_REPORT
   const int64 threshold = large_alloc_threshold;
   if (threshold > 0 && num_pages >= (threshold >> kPageShift)) {
     // Increase the threshold by 1/8 every time we generate a report.
@@ -1303,6 +1314,7 @@ inline bool should_report_large(Length num_pages) {
                              ? threshold + threshold/8 : 8ll<<30);
     return true;
   }
+#endif
   return false;
 }
 
@@ -1387,7 +1399,7 @@ ATTRIBUTE_ALWAYS_INLINE inline void* do_calloc(size_t n, size_t elem_size) {
 
   void* result = do_malloc_or_cpp_alloc(size);
   if (result != NULL) {
-    memset(result, 0, size);
+    memset(result, 0, tc_nallocx(size, 0));
   }
   return result;
 }
@@ -1994,9 +2006,6 @@ TC_ALIAS(tc_free);
 // (via ::operator delete(ptr, nothrow)).
 // But it's really the same as normal delete, so we just do the same thing.
 extern "C" PERFTOOLS_DLL_DECL void tc_delete_nothrow(void* p, const std::nothrow_t&) PERFTOOLS_NOTHROW
-#ifdef TC_ALIAS
-TC_ALIAS(tc_free);
-#else
 {
   if (PREDICT_FALSE(!base::internal::delete_hooks_.empty())) {
     tcmalloc::invoke_hooks_and_free(p);
@@ -2004,7 +2013,6 @@ TC_ALIAS(tc_free);
   }
   do_free(p);
 }
-#endif
 
 extern "C" PERFTOOLS_DLL_DECL void* tc_newarray(size_t size)
 #ifdef TC_ALIAS
@@ -2076,33 +2084,21 @@ extern "C" PERFTOOLS_DLL_DECL void* tc_new_aligned_nothrow(size_t size, std::ali
 }
 
 extern "C" PERFTOOLS_DLL_DECL void tc_delete_aligned(void* p, std::align_val_t) PERFTOOLS_NOTHROW
-#ifdef TC_ALIAS
-TC_ALIAS(tc_delete);
-#else
 {
   free_fast_path(p);
 }
-#endif
 
 // There is no easy way to obtain the actual size used by do_memalign to allocate aligned storage, so for now
 // just ignore the size. It might get useful in the future.
 extern "C" PERFTOOLS_DLL_DECL void tc_delete_sized_aligned(void* p, size_t size, std::align_val_t align) PERFTOOLS_NOTHROW
-#ifdef TC_ALIAS
-TC_ALIAS(tc_delete);
-#else
 {
   free_fast_path(p);
 }
-#endif
 
 extern "C" PERFTOOLS_DLL_DECL void tc_delete_aligned_nothrow(void* p, std::align_val_t, const std::nothrow_t&) PERFTOOLS_NOTHROW
-#ifdef TC_ALIAS
-TC_ALIAS(tc_delete);
-#else
 {
   free_fast_path(p);
 }
-#endif
 
 extern "C" PERFTOOLS_DLL_DECL void* tc_newarray_aligned(size_t size, std::align_val_t align)
 #ifdef TC_ALIAS
