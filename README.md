@@ -4,26 +4,36 @@
 (originally Google Performance Tools)
 
 The fastest malloc we’ve seen; works particularly well with threads
+
 and STL. Also: thread-friendly heap-checker, heap-profiler, and
+
 cpu-profiler.
 
 
 # 1.OVERVIEW
 
 
-```
 gperftools is a collection of a high-performance multi-threaded
+
 malloc() implementation, plus some pretty nifty performance analysis
+
 tools.
 
+
 gperftools is distributed under the terms of the BSD License. Join our
+
 mailing list at gperftools@googlegroups.com for updates:
+
 https://groups.google.com/forum/#!forum/gperftools
 
+
 gperftools was original home for pprof program. But do note that
+
 original pprof (which is still included with gperftools) is now
+
 deprecated in favor of golang version at https://github.com/google/pprof
-```
+
+
 
 # 2.TCMALLOC
 
