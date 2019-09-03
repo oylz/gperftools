@@ -1,22 +1,16 @@
 **gperftools**
 
 
-\(originally Google Performance Tools\)
-
-The fastest malloc we’ve seen; works particularly well with threads
-
-and STL. Also: thread\-friendly heap\-checker, heap\-profiler, and
-
-cpu\-profiler.
+originally Google Performance Tools.The fastest malloc we’ve seen;
+works particularly well with threads and STL. Also: thread\-friendly
+heap\-checker, heap\-profiler, and cpu\-profiler.
 
 
 # 1.OVERVIEW
 
 
 gperftools is a collection of a high\-performance multi\-threaded
-
 malloc\(\) implementation, plus some pretty nifty performance analysis
-
 tools.
 
 
@@ -223,15 +217,15 @@ see INSTALL for more details.  It is not currently available on Windows.
 
 NOTE: CPU profiling doesn't work after fork \(unless you immediately
 
-      do an exec\(\)\-like call afterwards\).  Furthermore, if you do
+do an exec\(\)\-like call afterwards\).  Furthermore, if you do
 
-      fork, and the child calls exit\(\), it may corrupt the profile
+fork, and the child calls exit\(\), it may corrupt the profile
 
-      data.  You can use \_exit\(\) to work around this.  We hope to have
+data.  You can use \_exit\(\) to work around this.  We hope to have
 
-      a fix for both problems in the next release of perftools
+a fix for both problems in the next release of perftools
 
-      \(hopefully perftools 1.2\).
+\(hopefully perftools 1.2\).
 
 
 
