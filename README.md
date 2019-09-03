@@ -2,74 +2,45 @@
 
 
 originally Google Performance Tools.The fastest malloc we’ve seen;
-works particularly well with threads and STL. Also: thread\-friendly
-heap\-checker, heap\-profiler, and cpu\-profiler.
+works particularly well with threads and STL. Also thread\-friendly: 
+* heap\-checker
+* heap\-profiler
+* cpu\-profiler.
 
 
 # 1.OVERVIEW
 
-
-gperftools is a collection of a high\-performance multi\-threaded
+* gperftools is a collection of a high\-performance multi\-threaded
 malloc\(\) implementation, plus some pretty nifty performance analysis
 tools.
 
+* gperftools is distributed under the terms of the BSD License. Join our
+mailing list at [googlegroups](gperftools@googlegroups.com) for [updates](https://groups.google.com/forum/#\!forum/gperftools)
 
-gperftools is distributed under the terms of the BSD License. Join our
-
-mailing list at gperftools@googlegroups.com for updates:
-
-https://groups.google.com/forum/#\!forum/gperftools
-
-
-gperftools was original home for pprof program. But do note that
-
-original pprof \(which is still included with gperftools\) is now
-
-deprecated in favor of golang version at https://github.com/google/pprof
+* gperftools was original home for pprof program. But do note that original pprof \(which is still included with gperftools\) is now
+deprecated in favor of golang version at [original home](https://github.com/google/pprof)
 
 
 
 # 2.TCMALLOC
 
-Just link in \-ltcmalloc or \-ltcmalloc\_minimal to get the advantages of
+* Just link in \-ltcmalloc or \-ltcmalloc\_minimal to get the advantages of tcmalloc \-\- a replacement for **malloc** and **new**.  
+See below for some environment variables you can use with tcmalloc, as well.
 
-tcmalloc \-\- a replacement for malloc and new.  See below for some
-
-environment variables you can use with tcmalloc, as well.
-
+* tcmalloc functionality is available on all systems we've tested; see INSTALL for more details.
 
 
-tcmalloc functionality is available on all systems we've tested; see
+* NOTE: 
+    * When compiling with programs with gcc, that you plan to link with libtcmalloc, it's safest to pass in the flags
+    ```
+        -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
+    ```
 
-INSTALL for more details.  See README\_windows.txt for instructions on
-
-using tcmalloc on Windows.
-
-
-
-NOTE: When compiling with programs with gcc, that you plan to link
-
-with libtcmalloc, it's safest to pass in the flags
-
-
-
- \-fno\-builtin\-malloc \-fno\-builtin\-calloc \-fno\-builtin\-realloc \-fno\-builtin\-free
-
-
-
-when compiling.  gcc makes some optimizations assuming it is using its
-
-own, built\-in malloc; that assumption obviously isn't true with
-
-tcmalloc.  In practice, we haven't seen any problems with this, but
-
-the expected risk is highest for users who register their own malloc
-
-hooks with tcmalloc \(using gperftools/malloc\_hook.h\).  The risk is
-
-lowest for folks who use tcmalloc\_minimal \(or, of course, who pass in
-
-the above flags :\-\) \).
+    * when compiling.  gcc makes some optimizations assuming it is using its own, built\-in malloc; 
+    that assumption obviously isn't true with tcmalloc.  In practice, we haven't seen any problems 
+    with this, but the expected risk is highest for users who register their own malloc hooks with 
+    tcmalloc \(using gperftools/malloc\_hook.h\).  The risk is lowest for folks who use tcmalloc\_minimal 
+    \(or, of course, who pass in the above flags :\-\) \).
 
 
 # 3.HEAP PROFILER
