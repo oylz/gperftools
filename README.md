@@ -11,7 +11,7 @@ cpu-profiler.
 # 1.OVERVIEW
 
 
-
+```
 gperftools is a collection of a high-performance multi-threaded
 malloc() implementation, plus some pretty nifty performance analysis
 tools.
@@ -23,11 +23,11 @@ https://groups.google.com/forum/#!forum/gperftools
 gperftools was original home for pprof program. But do note that
 original pprof (which is still included with gperftools) is now
 deprecated in favor of golang version at https://github.com/google/pprof
-
+```
 
 # 2.TCMALLOC
 
-
+```
 Just link in -ltcmalloc or -ltcmalloc_minimal to get the advantages of
 tcmalloc -- a replacement for malloc and new.  See below for some
 environment variables you can use with tcmalloc, as well.
@@ -48,11 +48,11 @@ the expected risk is highest for users who register their own malloc
 hooks with tcmalloc (using gperftools/malloc_hook.h).  The risk is
 lowest for folks who use tcmalloc_minimal (or, of course, who pass in
 the above flags :-) ).
-
+```
 
 # 3.HEAP PROFILER
 
-
+```
 See docs/heapprofile.html for information about how to use tcmalloc's
 heap profiler and analyze its output.
 
@@ -74,11 +74,11 @@ below.
 
 The heap profiler is available on all unix-based systems we've tested;
 see INSTALL for more details.  It is not currently available on Windows.
-
+```
 
 # 4.HEAP CHECKER
 
-
+```
 See docs/heap_checker.html for information about how to use tcmalloc's
 heap checker.
 
@@ -103,11 +103,11 @@ didn't compile.
 
 The heap checker is only available on Linux at this time; see INSTALL
 for more details.
-
+```
 
 # 5.CPU PROFILER
 
-
+```
 See docs/cpuprofile.html for information about how to use the CPU
 profiler and analyze its output.
 
@@ -132,11 +132,11 @@ NOTE: CPU profiling doesn't work after fork (unless you immediately
       data.  You can use _exit() to work around this.  We hope to have
       a fix for both problems in the next release of perftools
       (hopefully perftools 1.2).
-
+```
 
 # 6.EVERYTHING IN ONE
 
-
+```
 If you want the CPU profiler, heap profiler, and heap leak-checker to
 all be available for your application, you can do:
    gcc -o myapp ... -lprofiler -ltcmalloc
@@ -148,20 +148,20 @@ library, this two-library linking won't work:
 Instead, use the special libtcmalloc_and_profiler library, which we
 make for just this purpose:
    gcc -o myapp ... /usr/lib/libtcmalloc_and_profiler.a
-
+```
 
 # 7.CONFIGURATION OPTIONS
 
-
+```
 For advanced users, there are several flags you can pass to
 './configure' that tweak tcmalloc performance.  (These are in addition
 to the environment variables you can set at runtime to affect
 tcmalloc, described below.)  See the INSTALL file for details.
-
+```
 
 # 8.ENVIRONMENT VARIABLES
 
-
+```
 The cpu profiler, heap checker, and heap profiler will lie dormant,
 using no memory or CPU, until you turn them on.  (Thus, there's no
 harm in linking -lprofiler into every application, and also -ltcmalloc
@@ -187,24 +187,24 @@ For a full list of variables, see the documentation pages:
    docs/cpuprofile.html
    docs/heapprofile.html
    docs/heap_checker.html
-
+```
 
 # 9.COMPILING ON NON-LINUX SYSTEMS
 
 
-
+```
 Perftools was developed and tested on x86 Linux systems, and it works
 in its full generality only on those systems.  However, we've
 successfully ported much of the tcmalloc library to FreeBSD, Solaris
 x86, and Darwin (Mac OS X) x86 and ppc; and we've ported the basic
 functionality in tcmalloc_minimal to Windows.  See INSTALL for details.
 See README_windows.txt for details on the Windows port.
-
+```
 
 # 10.PERFORMANCE
 
 
-
+```
 If you're interested in some third-party comparisons of tcmalloc to
 other malloc libraries, here are a few web pages that have been
 brought to our attention.  The first discusses the effect of using
@@ -217,12 +217,12 @@ It's possible to build tcmalloc in a way that trades off faster
 performance (particularly for deletes) at the cost of more memory
 fragmentation (that is, more unusable memory on your system).  See the
 INSTALL file for details.
-
+```
 
 # 11.OLD SYSTEM ISSUES
 
 
-
+```
 When compiling perftools on some old systems, like RedHat 8, you may
 get an error like this:
     ___tls_get_addr: symbol not found
@@ -233,12 +233,12 @@ configure script can't always detect this kind of case, leading to
 that error.  To fix it, just comment out (or delete) the line
    #define HAVE_TLS 1
 in your config.h file before building.
-
+```
 
 # 12.64-BIT ISSUES
 
 
-
+```
 There are two issues that can cause program hangs or crashes on x86_64
 64-bit systems, which use the libunwind library to get stack-traces.
 Neither issue should affect the core tcmalloc library; they both
@@ -295,3 +295,4 @@ pthread_mutex_lock!
 
 ---
 17 May 2011
+```
