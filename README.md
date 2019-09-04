@@ -1,5 +1,5 @@
 
-<font size="+5">gperftools</font>
+# gperftools
 
 
 originally Google Performance Tools.The fastest malloc we’ve seen;
@@ -9,7 +9,7 @@ works particularly well with threads and STL. Also thread\-friendly:
 * cpu\-profiler.
 
 
-# 1.OVERVIEW
+## 1.OVERVIEW
 
 * gperftools is a collection of a high\-performance multi\-threaded
 malloc\(\) implementation, plus some pretty nifty performance analysis
@@ -23,7 +23,7 @@ deprecated in favor of golang version at [original home](https://github.com/goog
 
 
 
-# 2.TCMALLOC
+## 2.TCMALLOC
 
 * Just link in \-ltcmalloc or \-ltcmalloc\_minimal to get the advantages of tcmalloc \-\- a replacement for **malloc** and **new**.  
 See below for some environment variables you can use with tcmalloc, as well.
@@ -44,7 +44,7 @@ See below for some environment variables you can use with tcmalloc, as well.
     \(or, of course, who pass in the above flags :\-\) \).
 
 
-# 3.HEAP PROFILER
+## 3.HEAP PROFILER
 
 
 * See docs/heapprofile.html for information about how to use tcmalloc's heap profiler and analyze its output.
@@ -80,7 +80,7 @@ see INSTALL for more details.  It is not currently available on Windows.
 
 
 
-# 4.HEAP CHECKER
+## 4.HEAP CHECKER
 
 
 * See docs/heap\_checker.html for information about how to use tcmalloc's heap checker.
@@ -115,7 +115,7 @@ it may report these libraries as leaking memory when they're not.
 
 
 
-# 5.CPU PROFILER
+## 5.CPU PROFILER
 
 
 
@@ -161,7 +161,7 @@ a fix for both problems in the next release of perftools
 
 
 
-# 6.EVERYTHING IN ONE
+## 6.EVERYTHING IN ONE
 
 
 * If you want the CPU profiler, heap profiler, and heap leak\-checker to
@@ -184,7 +184,7 @@ make for just this purpose:
 ```
 
 
-# 7.CONFIGURATION OPTIONS
+## 7.CONFIGURATION OPTIONS
 
 
 For advanced users, there are several flags you can pass to
@@ -194,7 +194,7 @@ tcmalloc, described below.\)  See the INSTALL file for details.
 
 
 
-# 8.ENVIRONMENT VARIABLES
+## 8.ENVIRONMENT VARIABLES
 
 
 
@@ -238,7 +238,7 @@ enable/disable features as well as tweak parameters.
 
 
 
-# ~~9.COMPILING ON NON\-LINUX SYSTEMS~~
+## ~~9.COMPILING ON NON\-LINUX SYSTEMS~~
 
 ~~Perftools was developed and tested on x86 Linux systems, and it works~~
 ~~in its full generality only on those systems.  However, we've~~
@@ -250,7 +250,7 @@ enable/disable features as well as tweak parameters.
 
 
 
-# 10.PERFORMANCE
+## 10.PERFORMANCE
 
 
 
@@ -272,7 +272,7 @@ INSTALL file for details.
 
 
 
-# 11.OLD SYSTEM ISSUES
+## 11.OLD SYSTEM ISSUES
 
 
 When compiling perftools on some old systems, like RedHat 8, you may
@@ -294,7 +294,7 @@ in your config.h file before building.
 
 
 
-# 12.64\-BIT ISSUES
+## 12.64\-BIT ISSUES
 
 
 
