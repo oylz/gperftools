@@ -94,9 +94,7 @@ it may report these libraries as leaking memory when they're not.
 
 
 
-* Here's a quick\-start for how to use:
-
-As a quick\-start, do the following after installing this package:
+* Here's a quick\-start for how to use.As a quick\-start, do the following after installing this package:
 
 
     * 1\) Link your executable with \-ltcmalloc
@@ -213,19 +211,19 @@ enable/disable features as well as tweak parameters.
 
 * Here are some of the most important variables:
 
-    * HEAPPROFILE=<pre> \-\- turns on heap profiling and dumps data using this prefix
+    * HEAPPROFILE=\<pre\> \-\- turns on heap profiling and dumps data using this prefix
 
-    * HEAPCHECK=<type>  \-\- turns on heap checking with strictness 'type'
+    * HEAPCHECK=\<type\>  \-\- turns on heap checking with strictness 'type'
 
-    * CPUPROFILE=<file> \-\- turns on cpu profiling and dumps data to this file.
+    * CPUPROFILE=\<file\> \-\- turns on cpu profiling and dumps data to this file.
 
     * PROFILESELECTED=1 \-\- if set, cpu\-profiler will only profile regions of code surrounded with ProfilerEnable\(\)/ProfilerDisable\(\).
 
     * CPUPROFILE\_FREQUENCY=x\-\- how many interrupts/second the cpu\-profiler samples.
 
-    * PERFTOOLS\_VERBOSE=<level> \-\- the higher level, the more messages malloc emits
+    * PERFTOOLS\_VERBOSE=\<level\> \-\- the higher level, the more messages malloc emits
 
-    * MALLOCSTATS=<level>    \-\- prints memory\-use stats at program\-exit
+    * MALLOCSTATS=\<level\>    \-\- prints memory\-use stats at program\-exit
 
 
 
