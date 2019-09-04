@@ -26,7 +26,7 @@ deprecated in favor of golang version at [original home](https://github.com/goog
 ## 2.TCMALLOC
 
 * Just link in \-ltcmalloc or \-ltcmalloc\_minimal to get the advantages of tcmalloc \-\- a replacement for **malloc** and **new**.  
-See below for some environment variables you can use with tcmalloc, as well.
+See below for some [environment variables](#8environment-variables) you can use with tcmalloc, as well.
 
 * tcmalloc functionality is available on all systems we've tested; see INSTALL for more details.
 
@@ -71,7 +71,7 @@ See below for some environment variables you can use with tcmalloc, as well.
 
 
 * There are other environment variables, besides HEAPPROFILE, you can set to adjust the 
-heap\-profiler behavior; c.f. "ENVIRONMENT VARIABLES" below.
+heap\-profiler behavior; c.f. ["ENVIRONMENT VARIABLES"](#8environment-variables) below.
 
 
 * The heap profiler is available on all unix\-based systems we've tested;
@@ -142,7 +142,7 @@ it may report these libraries as leaking memory when they're not.
 
 
 * There are other environment variables, besides CPUPROFILE, you can set
-to adjust the cpu\-profiler behavior; cf "ENVIRONMENT VARIABLES" below.
+to adjust the cpu\-profiler behavior; cf ["ENVIRONMENT VARIABLES"](#8environment-variables) below.
 
 
 
