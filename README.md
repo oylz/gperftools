@@ -370,5 +370,17 @@ pthread\_mutex\_lock\!
 
 17 May 2011
 
+## 13.libtool issues
+
+* if hit **possibly undefined macro: AC_PROG_LIBTOOL**, you should reinstall the libtool
+```
+yum reinstall libtool -y
+```
+
+* if hit **LIBTOOL**, you should run the command in the directory
+```
+libtoolize
+```
+
 
 
