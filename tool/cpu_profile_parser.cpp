@@ -151,6 +151,7 @@ public:
         // loop prs
         fprintf(stderr, "===================================================================\n");
         for(pc_record pr:prs){
+            fprintf(stderr, "----------------------------------------------------------------\n");
             for(int i = 0; i < pr->pcs_.size(); i++){
                 uint64_t pc = pr->pcs_[i];
                 int n = 0;
@@ -177,7 +178,7 @@ public:
                 }
             }
 
-            break;
+            //break;
         }  
     } 
 
@@ -214,7 +215,7 @@ static void split_str(const std::string& input_str, const std::string &key, std:
 std::string get_symbol(const std::string &lib, uint64_t mpc){
     // run nm
     std::string rr = "";
-    std::string cmd = "/usr/bin/nm -n --demangle ";
+    std::string cmd = "/usr/bin/nm -D -n --demangle ";
     cmd += lib;
     cmd += " > tmp.log";
     system(cmd.c_str());
