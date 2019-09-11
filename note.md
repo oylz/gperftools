@@ -1,3 +1,7 @@
+# 0.cpu profile format
+![cpu profile format](./docs/cpu_profiler_file_format.jpg)
+
+
 # 1.[EntryPoint](./src/profiler.cc)
 
 * user define signal [CPUPROFILESIGNAL](./src/profiler.cc#L202TL206)
