@@ -215,17 +215,29 @@ static void split_str(const std::string& input_str, const std::string &key, std:
 std::string get_symbol(const std::string &lib, uint64_t mpc){
     // run nm
     std::string rr = "";
-    std::string cmd = "/usr/bin/nm -D -n --demangle ";
+    std::string cmd = "/usr/bin/nm  -n --demangle ";
     cmd += lib;
-    cmd += " > tmp.log";
-    system(cmd.c_str());
-    // read
-    FILE *fl = fopen("tmp.log", "rb");
-    if(fl == NULL){
-        return rr;
+    cmd += " 2>>error.log > tmp.log";
+    FILE *fl = NULL;
+    int len = 0;
+    for(int i = 0; i < 2; i++){
+        system(cmd.c_str());
+        // read
+        fl = fopen("tmp.log", "rb");
+        if(fl == NULL){
+            return rr;
+        }
+        fseek(fl, 0, SEEK_END);
+        len = ftell(fl);
+        if(i==0 && len==0){
+            cmd = "/usr/bin/nm -D -n --demangle ";
+            cmd += lib;
+            cmd += " 2>>error.log > tmp.log";
+            fclose(fl);
+            continue;
+        }
+        break;
     }
-    fseek(fl, 0, SEEK_END);
-    int len = ftell(fl);
     fseek(fl, 0, SEEK_SET);
     char *buf = new char[len];
     fread(buf, 1, len, fl);
