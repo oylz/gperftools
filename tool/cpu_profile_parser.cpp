@@ -41,7 +41,7 @@ typedef boost::shared_ptr<pc_record_n> pc_record;
 class cpu_profile_parser{
 private:
 public:
-    bool parse(const std::string &file){
+    bool parse(const std::string &app_path, const std::string &file){
         // read file
         FILE *fl = fopen(file.c_str(), "rb");
         if(fl == NULL){
@@ -162,7 +162,7 @@ public:
                         // hit
                         pr->ln_ = ln;
                         uint64_t mpc = pc-ln->beg_;
-                        if(ln->lib_ == "/usr/local/xyz/nredis/src/exphash"){// in primary app, mpc is pc
+                        if(ln->lib_ == app_path){// in primary app, mpc is pc
                             mpc = pc;
                         }
                         pr->mpcs_.push_back(mpc);
@@ -271,8 +271,12 @@ std::string get_symbol(const std::string &lib, uint64_t mpc){
 }
 
 int main(int argc, char **argv){
+    if(argc < 3){
+        fprintf(stderr, "usage:./cpu_profile_parser app_path profile\n");
+        return 0;
+    }
     cpu_profile_parser cpp;
-    cpp.parse(argv[1]);
+    cpp.parse(argv[1], argv[2]);
     return 0;
 }
 
