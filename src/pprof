@@ -644,6 +644,7 @@ sub Main() {
     # which may differ from the data from subsequent profiles, especially
     # if they were run on different machines.  Use appropriate libs for
     # each pc somehow.
+    printf("ExtractSymbols...\n");
     $symbols = ExtractSymbols($libs, $pcs);
   }
 
@@ -2638,7 +2639,6 @@ sub TranslateStack {
     if (length($a) > 8 && $a gt "7fffffffffffffff") {
       next;
     }
-
     if ($main::opt_disasm || $main::opt_list) {
       # We want just the address for the key
       push(@result, $a);
@@ -3112,6 +3112,7 @@ sub ReduceProfile {
   my $fullname_to_shortname_map = {};
   FillFullnameToShortnameMap($symbols, $fullname_to_shortname_map);
   foreach my $k (keys(%{$profile})) {
+    printf("zerok:%s\n", $k);
     my $count = $profile->{$k};
     my @translated = TranslateStack($symbols, $fullname_to_shortname_map, $k);
     my @path = ();
@@ -3606,7 +3607,7 @@ sub FetchDynamicProfile {
 sub FetchDynamicProfiles {
   my $items = scalar(@main::pfile_args);
   my $levels = log($items) / log(2);
-
+  printf("items:%s, levels:%s\n", $items, $levels);
   if ($items == 1) {
     $main::profile_files[0] = FetchDynamicProfile($main::prog, $main::pfile_args[0], 0, 1);
   } else {
@@ -3940,6 +3941,7 @@ sub ReadProfile {
 # independent implementation.
 sub FixCallerAddresses {
   my $stack = shift;
+  printf("=0====stack\n");
   if ($main::use_symbolized_profile) {
     return $stack;
   } else {
@@ -3953,6 +3955,7 @@ sub FixCallerAddresses {
     }
     for (my $i = 1; $i <= $#addrs; $i++) {
       $fixedaddrs[$i] = AddressSub($addrs[$i], "0x1");
+      printf("=1====addr:%s, fixedaddr:%s\n", $addrs[$i], $fixedaddrs[$i]);
     }
     return join $delimiter, @fixedaddrs;
   }
@@ -4009,6 +4012,7 @@ sub ReadCPUProfile {
     my @k = ();
     for (my $j = 0; $j < $d; $j++) {
       my $pc = $slots->get($i+$j);
+      #printf("pc:%016x\n", $pc);
       # Subtract one from caller pc so we map back to call instr.
       # However, don't do this if we're reading a symbolized profile
       # file, in which case the subtract-one was done when the file
@@ -4553,7 +4557,7 @@ sub ParseLibraries {
     $lib =~ s/\$build\b/$buildvar/g;
 
     $lib = FindLibrary($lib);
-
+    printf("parselib=beg===start:%s, finish:%s, offset:%s, lib:%s\n", $start, $finish, $offset, $lib);
     # Check for pre-relocated libraries, which use pre-relocated symbol tables
     # and thus require adjusting the offset that we'll use to translate
     # VM addresses into symbol table addresses.
@@ -4566,7 +4570,7 @@ sub ParseLibraries {
          $offset = AddressAdd($offset, $vma_offset);
       }
     }
-
+    printf("parselib=end===start:%s, finish:%s, offset:%s, lib:%s\n", $start, $finish, $offset, $lib);
     push(@{$result}, [$lib, $start, $finish, $offset]);
   }
 
@@ -4655,7 +4659,7 @@ sub AddressSub {
   my $addr1 = shift;
   my $addr2 = shift;
   my $diff;
-
+  # printf("AddressSub, addr1:%s, addr2:%s\n", $addr1, $addr2);
   if ($address_length == 8) {
     # Perl doesn't cope with wraparound arithmetic, so do it explicitly:
     $diff = (hex($addr1)-hex($addr2)) % (0x10000000 * 16);
@@ -4791,6 +4795,9 @@ sub ExtractSymbols {
     # in case there are overlaps in libraries and the main binary.
     @{$contained} = splice(@pcs, $start_pc_index,
                            $finish_pc_index - $start_pc_index);
+    printf("libname:%s", $libname);
+    printf ", pcs:%s", $_ for @{$contained};
+    print "\n";
     # Map to symbols
     MapToSymbols($libname, AddressSub($start, $offset), $contained, $symbols);
   }
@@ -4963,7 +4970,6 @@ sub MapSymbolsWithNM {
     }
     return 0;
   }
-
   # Sort addresses so we can do a join against nm output
   my $index = 0;
   my $fullname = $names[0];
@@ -4971,11 +4977,13 @@ sub MapSymbolsWithNM {
   foreach my $pc (sort { $a cmp $b } @{$pclist}) {
     # Adjust for mapped offset
     my $mpc = AddressSub($pc, $offset);
+    printf("image:%s, pc:%s, offset:%s, mpc:%s\n", $image, $pc, $offset, $mpc);
     while (($index < $#names) && ($mpc ge $symbol_table->{$fullname}->[1])){
       $index++;
       $fullname = $names[$index];
       $name = ShortFunctionName($fullname);
     }
+    printf("index:%s, fullname:%s, name:%s, stf1:%s\n", $index, $fullname, $name, $symbol_table->{$fullname}->[1]);
     if ($mpc lt $symbol_table->{$fullname}->[1]) {
       $symbols->{$pc} = [$name, "?", $fullname];
     } else {
@@ -5358,6 +5366,14 @@ sub GetProcedureBoundaries {
 
   foreach my $nm_command (@nm_commands) {
     my $symbol_table = GetProcedureBoundariesViaNm($nm_command, $regexp, $image);
+    printf("nm_command:%s\n", $nm_command);
+    #print("beg symbol_table\n");
+    #while (my ($kk, $vv) = each $symbol_table){
+    #    printf("kk:%s, beg vv:\n", $kk);
+    #    printf "\t%s\n", $_ for @{$vv};
+    #    print("end vv\n");
+    #}
+    #print("end symbol_table\n");
     return $symbol_table if (%{$symbol_table});
   }
   my $symbol_table = {};

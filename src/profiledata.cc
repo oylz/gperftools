@@ -73,6 +73,7 @@ void ProfileData::Evict(const Entry& entry) {
   }
   evict_[num_evicted_++] = entry.count;
   evict_[num_evicted_++] = d;
+  fprintf(stderr, "CPUPROFILER====%s:%d, count:%d, d:%d\n", __FILE__, __LINE__, entry.count, d);
   memcpy(&evict_[num_evicted_], entry.stack, d * sizeof(Slot));
   num_evicted_ += d;
 }
@@ -159,6 +160,8 @@ static void DumpProcSelfMaps(int fd) {
                                 start, end, flags, offset, inode, filename,
                                 0);
     FDWrite(fd, linebuf.buf_, written);
+    fprintf(stderr, "CPUPROFILER====%s:%d, linebuf.buf:%s\n", 
+      __FILE__, __LINE__, linebuf.buf_);
   }
 }
 
@@ -275,7 +278,7 @@ void ProfileData::Add(int depth, const void* const* stack) {
   }
 
   count_++;
-
+  
   // See if table already has an entry for this trace
   bool done = false;
   Bucket* bucket = &hash_[h % kBuckets];
@@ -296,7 +299,8 @@ void ProfileData::Add(int depth, const void* const* stack) {
       }
     }
   }
-
+  fprintf(stderr, "CPUPROFILER====%s:%d, h:%016LX, count_:%d, done:%d\n", 
+        __FILE__, __LINE__, (uint64_t)h, count_, done); 
   if (!done) {
     // Evict entry with smallest count
     Entry* e = &bucket->entry[0];

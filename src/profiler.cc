@@ -365,7 +365,7 @@ void CpuProfiler::prof_handler(int sig, siginfo_t*, void* signal_ucontext,
       used_stack = stack;
       depth++;  // To account for pc value in stack[0];
     }
-
+    fprintf(stderr, "CPUPROFILER====%s:%d, depth:%d\n", __FILE__, __LINE__, depth);
     instance->collector_.Add(depth, used_stack);
   }
 }
