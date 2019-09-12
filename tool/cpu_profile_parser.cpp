@@ -212,61 +212,96 @@ static void split_str(const std::string& input_str, const std::string &key, std:
         out_str_vec.push_back(tmp);
     }
 }
-std::string get_symbol(const std::string &lib, uint64_t mpc){
-    // run nm
-    std::string rr = "";
-    std::string cmd = "/usr/bin/nm  -n --demangle ";
-    cmd += lib;
-    cmd += " 2>>error.log > tmp.log";
-    FILE *fl = NULL;
-    int len = 0;
-    for(int i = 0; i < 2; i++){
-        system(cmd.c_str());
-        // read
-        fl = fopen("tmp.log", "rb");
-        if(fl == NULL){
-            return rr;
-        }
-        fseek(fl, 0, SEEK_END);
-        len = ftell(fl);
-        if(i==0 && len==0){
-            cmd = "/usr/bin/nm -D -n --demangle ";
-            cmd += lib;
-            cmd += " 2>>error.log > tmp.log";
-            fclose(fl);
-            continue;
-        }
-        break;
+bool read_small_file(const std::string &file, std::string &content){
+    FILE * fl = fopen(file.c_str(), "rb");
+    if(fl == NULL){
+        return false;
+    }
+    fseek(fl, 0, SEEK_END);
+    int len = ftell(fl);
+    if(len <= 0){
+        fclose(fl);
+        return false;
     }
     fseek(fl, 0, SEEK_SET);
     char *buf = new char[len];
     fread(buf, 1, len, fl);
+    content = std::string(buf, len);
     fclose(fl);
-    std::string bufs(buf, len);
     delete []buf;
-    //
-    std::vector<std::string> lines;
-    split_str(bufs, "\n", lines);
-    uint64_t last_addr = 0;
-    std::string last_line = "";
-    for(const std::string &line:lines){
-        if(line.length() < 16){
-            continue;
-        } 
-        std::string addrs = line.substr(0, 16);
-        if(addrs == "               "){
-            continue;
+    return true;
+}
+std::string get_symbol(const std::string &lib, uint64_t mpc){
+    // run nm
+    std::string rr = "";
+    {
+        std::string cmd = "/usr/bin/nm  -n --demangle ";
+        cmd += lib;
+        cmd += " 2>>error.log > tmp.log";
+        std::string bufs = "";
+        for(int i = 0; i < 2; i++){
+            system(cmd.c_str());
+            // read
+            bool tmp = read_small_file("tmp.log", bufs);
+            if(i==0 && !tmp){
+                cmd = "/usr/bin/nm -D -n --demangle ";
+                cmd += lib;
+                cmd += " 2>>error.log > tmp.log";
+                continue;
+            }
+            break;
         }
-        uint64_t addr = 0;
-        sscanf(addrs.c_str(), "%LX", &addr); 
-        if(mpc < addr){
-            int pp = last_line.find(" ");
-            pp = last_line.find(" ", pp+1);
-            return last_line.substr(pp+1);
+        //
+        std::vector<std::string> lines;
+        split_str(bufs, "\n", lines);
+        uint64_t last_addr = 0;
+        std::string last_line = "";
+        for(const std::string &line:lines){
+            if(line.length() < 16){
+                continue;
+            } 
+            std::string addrs = line.substr(0, 16);
+            if(addrs == "               "){
+                continue;
+            }
+            uint64_t addr = 0;
+            sscanf(addrs.c_str(), "%LX", &addr); 
+            if(mpc < addr){
+                int pp = last_line.find(" ");
+                pp = last_line.find(" ", pp+1);
+                rr = last_line.substr(pp+1);
+                break;
+            }
+            last_addr = addr;
+            last_line = line;
         }
-        last_addr = addr;
-        last_line = line;
-    } 
+    }
+    // run addr2line
+    {
+        std::string cmd = "/usr/bin/addr2line -f -C -i -e ";
+        cmd += lib;
+        cmd += " ";
+        char mpcs[20] = {0};
+        sprintf(mpcs, "%16LX", mpc);
+        cmd += std::string(mpcs);
+        cmd += " 2>>error.log > tmp.log"; 
+        system(cmd.c_str());
+        std::string bufs = "";
+        if(!read_small_file("tmp.log", bufs)){
+            return rr;
+        }
+        std::vector<std::string> lines;
+        split_str(bufs, "\n", lines);
+        if(lines.size() < 2){
+            return rr;
+        }
+        const std::string &line = lines[0];
+        if(line == "??"){
+            return rr;
+        }
+        rr += " location:";
+        rr += lines[1];
+    }
     return rr;
 }
 
