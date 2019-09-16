@@ -85,6 +85,7 @@ struct GetStackImplementation {
 #if HAVE_DECL_BACKTRACE
 #define STACKTRACE_INL_HEADER "stacktrace_generic-inl.h"
 #define GST_SUFFIX generic
+#warning "gst_suffix====generic"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -94,6 +95,7 @@ struct GetStackImplementation {
 #ifdef HAVE_UNWIND_BACKTRACE
 #define STACKTRACE_INL_HEADER "stacktrace_libgcc-inl.h"
 #define GST_SUFFIX libgcc
+#warning "gst_suffix====libgcc"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -105,6 +107,7 @@ struct GetStackImplementation {
 #if defined(HAVE_LIBUNWIND_H) && defined(HAVE_TLS)
 #define STACKTRACE_INL_HEADER "stacktrace_libunwind-inl.h"
 #define GST_SUFFIX libunwind
+#warning "gst_suffix====libunwind"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -114,6 +117,7 @@ struct GetStackImplementation {
 #if defined(__i386__) || defined(__x86_64__)
 #define STACKTRACE_INL_HEADER "stacktrace_x86-inl.h"
 #define GST_SUFFIX x86
+#warning "gst_suffix====x86"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -127,6 +131,7 @@ struct GetStackImplementation {
 #define STACKTRACE_INL_HEADER "stacktrace_powerpc-darwin-inl.h"
 #endif
 #define GST_SUFFIX ppc
+#warning "gst_suffix====ppc"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -136,6 +141,7 @@ struct GetStackImplementation {
 #if defined(__arm__)
 #define STACKTRACE_INL_HEADER "stacktrace_arm-inl.h"
 #define GST_SUFFIX arm
+#warning "gst_suffix====arm"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -145,6 +151,7 @@ struct GetStackImplementation {
 #ifdef TCMALLOC_ENABLE_INSTRUMENT_STACKTRACE
 #define STACKTRACE_INL_HEADER "stacktrace_instrument-inl.h"
 #define GST_SUFFIX instrument
+#warning "gst_suffix====instrument"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -156,6 +163,7 @@ struct GetStackImplementation {
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__CYGWIN32__) || defined(__MINGW32__)
 #define STACKTRACE_INL_HEADER "stacktrace_win32-inl.h"
 #define GST_SUFFIX win32
+#warning "gst_suffix====win32"
 #include "stacktrace_impl_setup-inl.h"
 #undef GST_SUFFIX
 #undef STACKTRACE_INL_HEADER
@@ -201,20 +209,28 @@ static GetStackImplementation *all_impls[] = {
 static bool get_stack_impl_inited;
 
 #if defined(HAVE_GST_instrument)
+#warning "stack_impl=========insrument"
 static GetStackImplementation *get_stack_impl = &impl__instrument;
 #elif defined(HAVE_GST_win32)
+#warning "stack_impl=========win32"
 static GetStackImplementation *get_stack_impl = &impl__win32;
 #elif defined(HAVE_GST_x86) && defined(TCMALLOC_DONT_PREFER_LIBUNWIND)
+#warning "stack_impl=========x86"
 static GetStackImplementation *get_stack_impl = &impl__x86;
 #elif defined(HAVE_GST_ppc) && defined(TCMALLOC_DONT_PREFER_LIBUNWIND)
+#warning "stack_impl=========ppc"
 static GetStackImplementation *get_stack_impl = &impl__ppc;
 #elif defined(HAVE_GST_libunwind)
+#warning "stack_impl=========libunwind"
 static GetStackImplementation *get_stack_impl = &impl__libunwind;
 #elif defined(HAVE_GST_libgcc)
+#warning "stack_impl=========libgcc"
 static GetStackImplementation *get_stack_impl = &impl__libgcc;
 #elif defined(HAVE_GST_generic)
+#warning "stack_impl=========generic"
 static GetStackImplementation *get_stack_impl = &impl__generic;
 #elif defined(HAVE_GST_arm)
+#warning "stack_impl=========arm"
 static GetStackImplementation *get_stack_impl = &impl__arm;
 #elif 0
 // This is for the benefit of code analysis tools that may have
