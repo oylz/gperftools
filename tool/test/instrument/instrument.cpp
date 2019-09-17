@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include "base.h"
+
 extern "C"
 {
     void __cyg_profile_func_enter(void *this_fn, void *call_site) __attribute__((no_instrument_function));
@@ -29,39 +31,69 @@ int __read_small_file(const char *file, char **buf){
     fclose(fl);
     return 1;
 }
-unsigned long long _addr = 0;
-unsigned long long _naddr = 0;
+unsigned long long _fun_addr = 0;
+unsigned long long _ff_process_addr = 0;
+unsigned long long _process_addr = 0;
+unsigned long long _ff_process_addr1 = 0;
+bool _has_init = false;
 
 void __init(){
-    if(_addr > 0){
+    if(_has_init){
         return;
     }
+    _has_init = true;
     fprintf(stderr, "in __init\n");
     #if 1
     {
-        std::string cmd = "/usr/bin/nm --demangle main | grep \"T fun(std::string const&\" | awk '{print $1}' > tmp.log";
+        std::string cmd = "/usr/bin/nm --demangle main | grep \"T fun(std::string const&, char, int, std::string const&\" | awk '{print $1}' > tmp.log";
         system(cmd.c_str());
         std::string file = "tmp.log";
         char *buf = NULL;
         if(0 == __read_small_file(file.c_str(), &buf)){
-            fprintf(stderr, "error to find fun(std::string const&)\n");
+            fprintf(stderr, "error to find fun(int, std::string const&)\n");
             exit(0);
         }
         fprintf(stderr, "buf:%s\n", buf);
-        sscanf(buf, "%LX", &_addr);
+        sscanf(buf, "%lx", &_fun_addr);
         delete []buf;
     }
     {
-        std::string cmd = "/usr/bin/nm --demangle main | grep \"ff::process()\" | awk '{print $1}' > tmp.log";
+        std::string cmd = "/usr/bin/nm --demangle main | grep \" ff::process(boost::shared_ptr<ff_node_n> const&)\" | awk '{print $1}' > tmp.log";
         system(cmd.c_str());
         std::string file = "tmp.log";
         char *buf = NULL;
         if(0 == __read_small_file(file.c_str(), &buf)){
-            fprintf(stderr, "error to find fun(std::string const&)\n");
+            fprintf(stderr, "error to find ff::process(boost::shared_ptr<ff_node_n> const&\n");
             exit(0);
         }
         fprintf(stderr, "buf:%s\n", buf);
-        sscanf(buf, "%LX", &_naddr);
+        sscanf(buf, "%lx", &_ff_process_addr);
+        delete []buf;
+    }
+    {
+        std::string cmd = "/usr/bin/nm --demangle main | grep \" process(boost::shared_ptr<ff_node_n> const&)\" | awk '{print $1}' > tmp.log";
+        system(cmd.c_str());
+        std::string file = "tmp.log";
+        char *buf = NULL;
+        if(0 == __read_small_file(file.c_str(), &buf)){
+            fprintf(stderr, "error to find ff::process(boost::shared_ptr<ff_node_n> const&\n");
+            exit(0);
+        }
+        fprintf(stderr, "buf:%s\n", buf);
+        sscanf(buf, "%lx", &_process_addr);
+        delete []buf;
+    }
+    {
+        std::string cmd = "/usr/bin/nm --demangle main | grep \" ff::process(std::string const&, unsigned long, boost::shared_ptr<ff_node_n> const&, char)\" | awk '{print $1}' > tmp.log";
+        system(cmd.c_str());
+        std::string file = "tmp.log";
+        char *buf = NULL;
+        if(0 == __read_small_file(file.c_str(), &buf)){
+            fprintf(stderr, "error to find ff::process(boost::shared_ptr<ff_node_n> const&\n");
+            exit(0);
+        }
+        fprintf(stderr, "buf:%s\n", buf);
+        sscanf(buf, "%lx", &_ff_process_addr1);
         delete []buf;
     }
     #else
@@ -74,7 +106,7 @@ void __init(){
     void *addr = dlsym(handle, "test");
     //void *addr = dlsym(RTLD_DEFAULT, "test");
     if(addr != NULL){
-        _addr = (uint64_t)addr;
+        _fun_addr = (uint64_t)addr;
         return;
     }
     char *err = dlerror();
@@ -84,15 +116,124 @@ void __init(){
 
 void __cyg_profile_func_enter(void *this_fn, void *call_site){
     __init(); 
-    fprintf(stderr, "nnnn====beg this_fn:%LX, call_site:%LX, fun's _addr:%LX, ff::process()'s _naddr:%LX\n", 
-        this_fn, call_site, _addr, _naddr);
+    if(this_fn == (void*)_fun_addr){
+        fprintf(stderr, "\nnnnn==[fun]==beg this_fn:%lx, call_site:%lx, _fun_addr:%lx, _ff_process_addr:%lx\n", 
+            this_fn, call_site, _fun_addr, _ff_process_addr);
+    }
+    else if(this_fn == (void*)_ff_process_addr){
+        fprintf(stderr, "\nnnnn==[ff::process]==beg this_fn:%lx, call_site:%lx, _fun_addr:%lx, _ff_process_addr:%lx\n", 
+            this_fn, call_site, _fun_addr, _ff_process_addr);
+    }
+    else if(this_fn == (void*)_process_addr){
+        fprintf(stderr, "\nnnnn==[process]==beg this_fn:%lx, call_site:%lx, _process_addr:%lx\n", 
+            this_fn, call_site, _process_addr);
+    }
+    else if(this_fn == (void*)_ff_process_addr1){
+        fprintf(stderr, "\nnnnn==[ff::process 1]==beg this_fn:%lx, call_site:%lx, _ff_process_addr1:%lx\n", 
+            this_fn, call_site, _ff_process_addr1);
+    }
+    else{
+        return;
+    }
+    backtrace(1);
 }
 
 
 void __cyg_profile_func_exit(void *this_fn, void *call_site){
-    fprintf(stderr, "uuuu====end this_fn:%LX, call_site:%LX\n", this_fn, call_site);
+    if(this_fn == (void*)_fun_addr){
+        fprintf(stderr, "uuuu==[fun]==end this_fn:%lx, call_site:%lx, _fun_addr:%lx, _ff_process_addr:%lx\n", 
+            this_fn, call_site, _fun_addr, _ff_process_addr);
+    }
+    else if(this_fn == (void*)_ff_process_addr){
+        fprintf(stderr, "uuuu==[ff::process]==end this_fn:%lx, call_site:%lx, _fun_addr:%lx, _ff_process_addr:%lx\n", 
+            this_fn, call_site, _fun_addr, _ff_process_addr);
+    }
+    else if(this_fn == (void*)_process_addr){
+        fprintf(stderr, "uuuu==[process]==end this_fn:%lx, call_site:%lx, _process_addr:%lx\n", 
+            this_fn, call_site, _process_addr);
+    }
+    else if(this_fn == (void*)_ff_process_addr1){
+        fprintf(stderr, "uuuu==[ff::process 1]==end this_fn:%lx, call_site:%lx, _ff_process_addr1:%lx\n", 
+            this_fn, call_site, _fun_addr, _ff_process_addr1);
+    }
 }
 
+void backtrace(int to) {
+    unw_cursor_t cursor;
+    unw_context_t context;
+
+    //Initialize cursor to current frame for local unwinding.
+    unw_getcontext(&context);
+    unw_init_local(&cursor, &context);
+
+    
+    std::vector<trace_node> tns;
+
+    //Unwind frames one by one, going up the frame stack.
+    while (unw_step(&cursor) > 0) {
+        unw_word_t offset, pc;
+        unw_get_reg(&cursor, UNW_REG_IP, &pc);
+        if (pc == 0) {
+          break;
+        }
+        unw_word_t sp = 0, eh = 0, last = 0, rdi = 0, rsi = 0, rdx = 0, rcx = 0; 
+        unw_get_reg(&cursor, UNW_REG_SP, &sp);
+        unw_get_reg(&cursor, UNW_REG_EH, &eh);
+        unw_get_reg(&cursor, UNW_REG_LAST, &last);
+        unw_get_reg(&cursor, UNW_X86_64_RDI, &rdi);
+        unw_get_reg(&cursor, UNW_X86_64_RSI, &rsi);
+        unw_get_reg(&cursor, UNW_X86_64_RDX, &rdx);
+        unw_get_reg(&cursor, UNW_X86_64_RCX, &rcx);
+        //fprintf(stderr, "\tpc:0x%lx, sp:%lx, eh:%lx, last:%lx\n", pc, sp, eh, last);
+        int count = tns.size();
+        if(count > 0){
+            trace_node tn = tns[count-1];
+            tn->size_ = sp - tn->sp_;
+        }
+
+        char sym[256];
+        if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {
+            //fprintf(stderr, "\t(%s+0x%lx)\n", sym, offset);
+            trace_node tn(new trace_node_n(sym, offset, sp, pc, eh, last, 
+                rdi, rsi, rdx, rcx));
+            tns.push_back(tn);
+        } else {
+          fprintf(stderr, "\t-- error: unable to obtain symbol name for this frame\n");
+        }
+    }
+    // print tns
+    for(int i = to; i <= to+1; i++){
+        const trace_node &tn = tns[i];
+        uint64_t rrdi = (tn->rdi_==0)?0:(*((uint64_t*)tn->rdi_));
+        uint64_t rrsi = (tn->rsi_==0)?0:(*((uint64_t*)tn->rsi_));
+        uint64_t rrdx = 0;//(tn->rdx_==0)?0:(*((uint64_t*)tn->rdx_));
+        uint64_t rrcx = 0;//(tn->rcx_==0)?0:(*((uint64_t*)tn->rcx_));
+        fprintf(stderr, "\tpc:0x%lx, sp:%lx, eh:%lx, last:%lx, rdi:%lx(%lx), rsi:%lx(%lx), rdx:%lx(%lx), rcx:%lx(%lx)\n", 
+            tn->pc_, tn->sp_, tn->eh_, tn->last_, 
+            tn->rdi_, rrdi, tn->rsi_, rrsi, tn->rdx_, rrdx, tn->rcx_, rrcx);
+        fprintf(stderr, "\t(%s+0x%lx)\n", tn->sym_.c_str(), tn->offset_);
+        if(i == to+1){
+            break;
+        } 
+        {
+            int count = tn->size_/8;
+            uint64_t *spp = (uint64_t *)tn->sp_;
+            for (int i=0; i<count; i++) {
+                fprintf(stderr, "\t\t64=>*(spp + %d) = %lx\n", i, *(spp +i));
+            }
+        }
+        #if 0
+        fprintf(stderr, "\t\t------------------------------\n");
+        {
+            int count = tn->size_/4;
+            uint32_t *spp = (uint32_t *)tn->sp_;
+            for (int i=0; i<count; i++) {
+                fprintf(stderr, "\t\t32=>*(spp + %d) = %lx\n", i, *(spp +i));
+            }
+        }   
+        #endif
+    }
+}
 
 
 

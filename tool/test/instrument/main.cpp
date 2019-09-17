@@ -2,8 +2,23 @@
 #include <string>
 #include <string.h>
 #include <sys/types.h>
+#include "base.h"
 
-int fun(const std::string &file, uint64_t num){
+void process(const ff_node &fn){
+    #if 0
+    fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+    backtrace(0);
+    fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
+    #endif
+    fprintf(stderr, "fnaddr:%lx, fn:(%s, %d)\n", fn.get(), fn->name_.c_str(), fn->age_);
+}
+int fun(const std::string &head, char chr, int integer, const std::string &file, uint64_t num, char nchr){
+    #if 1
+    fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+    backtrace(0);
+    fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
+    #endif
+    fprintf(stderr, "head_ptr:%lx, chr:%x, integer:%x, file_ptr:%lx, num:%lx, nchr:%x\n", &head, chr, integer, &file, num, nchr);
     FILE *fl = fopen(file.c_str(), "wb");
     if(fl == NULL){
         return 0;
@@ -12,29 +27,24 @@ int fun(const std::string &file, uint64_t num){
     fclose(fl);
     return 1;
 }
-std::string nfun(const std::string &file){
-    std::string rr = "";
-    FILE *fl = fopen(file.c_str(), "rb");
-    if(fl == NULL){
-        return rr;
-    }
-    fseek(fl, 0, SEEK_END);
-    int len = ftell(fl);
-    char *buf = new char[len];
-    fread(buf, 1, len, fl); 
-    fclose(fl);
-    rr = std::string(buf, len);
-    return rr;
-}
+
 class ff{
-private:
-    int a_;
 public:
-    ff(int a){
-        a_ = a;
+    void process(const ff_node &fn){
+        #if 0
+        fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+        backtrace(0);
+        fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
+        #endif
+        fprintf(stderr, "this:%lx, fnaddr:%lx, fn:(%s, %d)\n", this, fn.get(), fn->name_.c_str(), fn->age_);
     }
-    void process(){
-        fprintf(stderr, "a_:%d\n", a_);
+    void process(const std::string &str, uint64_t num, const ff_node &fn, char chr){
+        #if 0
+        fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+        backtrace(0);
+        fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
+        #endif
+        fprintf(stderr, "this:%lx, str_ptr:%lx, num:%lx, fnaddr:%lx, fn:(%s, %d), chr:%x\n", this, &str, num, fn.get(), fn->name_.c_str(), fn->age_, chr);
     }
 };
 
@@ -54,16 +64,26 @@ int main(int argc, char **argv){
         fprintf(stderr, "usage:\n./main file nums(number)\n");
         return 0;
     }
-    fun(file, num);
-    // nfun
-    std::string rr = nfun(file);
-    uint64_t rrn = 0;
-    memcpy(&rrn, rr.data(), rr.size());
-    fprintf(stderr, "rrn:%lu\n", rrn);
-
+    int integer = 222222222;
+    fun("oylzyonkenjanetjason", 110, integer, file, num, 111);
+    
     // ff
-    ff f(100);
-    f.process();
+    ff_node fn(new ff_node_n("Jason", 5));
+    ff f;
+    f.process(fn);
+
+    ff_node nfn(new ff_node_n("Janet", 33));
+    ff nf;
+    nf.process(nfn);
+
+    ff_node mfn(new ff_node_n("Yonken", 35));
+    process(mfn);
+
+    ff_node ofn(new ff_node_n("MM", 99));
+    ff of;
+    uint64_t nnum = 111;
+    of.process("aa", nnum, ofn, 9);
+
     return 0;
 }
 
