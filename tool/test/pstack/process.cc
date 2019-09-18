@@ -404,7 +404,12 @@ operator << (std::ostream &os, const ArgPrint &ap)
                 fprintf(stderr, "\n----------------------------\nXYZ-1 name:%s, type:%s\n", name.c_str(), type.name().c_str());
                 if (type) {
                     auto attr = child.attribute(Dwarf::DW_AT_location);
-                    fprintf(stderr, "XYZ-2 attr.valid():%d\n", attr.valid());
+                    std::string forms = "";
+                    if(attr.form() == DW_FORM_sec_offset){forms = "DW_FORM_sec_offset";}
+                    else if(attr.form() == DW_FORM_block1){forms = "DW_FORM_block1";}
+                    else if(attr.form() == DW_FORM_block){forms = "DW_FORM_block";}
+                    else if(attr.form() == DW_FORM_exprloc){forms = "DW_FORM_exprloc";}
+                    fprintf(stderr, "XYZ-2 attr.valid():%d, forms:%s\n", attr.valid(), forms.c_str());
                     if (attr.valid()) {
                         Dwarf::ExpressionStack fbstack;
                         addr = fbstack.eval(ap.p, attr, ap.frame, ap.frame->elfReloc);
