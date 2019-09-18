@@ -1,0 +1,77 @@
+nnnn=beg==============================================================
+
+----------------------------
+XYZ-1 name:this_fn, type:
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:401f00, isReg:1
+XYZ reg addr:401f00
+
+----------------------------
+XYZ-1 name:call_site, type:
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:4018ab, isReg:1
+XYZ reg addr:4018ab
+uuuu=end==============================================================
+nnnn=beg==============================================================
+
+----------------------------
+XYZ-1 name:head, type:
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:7ffe7edf0fb0, isReg:1
+XYZ reg addr:7ffe7edf0fb0
+
+----------------------------
+XYZ-1 name:chr, type:char
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:7f8353b44000, isReg:1
+XYZ reg addr:7f8353b44000
+
+----------------------------
+XYZ-1 name:integer, type:int
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:d3ed78e, isReg:1
+XYZ reg addr:d3ed78e
+
+----------------------------
+XYZ-1 name:file, type:
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:7ffe7edf0f90, isReg:1
+XYZ reg addr:7ffe7edf0f90
+
+----------------------------
+XYZ-1 name:num, type:uint64_t
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:7ffe7edf0f48, isReg:0
+XYZ buf size:8
+XYZ buf rr:3039
+
+----------------------------
+XYZ-1 name:nchr, type:char
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:0, isReg:1
+XYZ reg addr:0
+uuuu=end==============================================================
+nnnn=beg==============================================================
+
+----------------------------
+XYZ-1 name:argc, type:int
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:0, isReg:1
+XYZ reg addr:0
+
+----------------------------
+XYZ-1 name:argv, type:
+XYZ-2 attr.valid():1, forms:DW_FORM_sec_offset
+XYZ exrreader
+XYZ-3 addr:7f8353b44000, isReg:1
+XYZ reg addr:7f8353b44000
+uuuu=end==============================================================
