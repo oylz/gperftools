@@ -30,12 +30,24 @@ int fun(const char *file, unsigned long long num){
     return ori_fun(file, num);
 }
 class FF{
+   typedef std::string (*get_str_fun)();
+    get_str_fun get_str_fun_ori_;
 public:
     std::string get_str();
 };
+
 std::string FF::get_str(){
-    fprintf(stderr, "in hook FF::get_str()\n");
-    return "hook";
+    if(get_str_fun_ori_ == NULL){
+        void *ori = dlsym(RTLD_NEXT, "_ZN2FF7get_strEv"); 
+        if(ori == NULL){
+            fprintf(stderr, "ori is null");
+            return "empty";
+        }
+        get_str_fun_ori_ = (get_str_fun)ori;
+    }
+    fprintf(stderr, "in hook FF::get_str(), get_str_fun_ori_:%lx\n", get_str_fun_ori_);
+    return get_str_fun_ori_(); 
+    //return "hook";
 } 
 
 

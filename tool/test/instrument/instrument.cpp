@@ -136,6 +136,8 @@ void __cyg_profile_func_enter(void *this_fn, void *call_site){
         return;
     }
     backtrace(1);
+    fprintf(stderr, "enter any key to continue...\n");
+    char chr = getchar();
 }
 
 
