@@ -3,6 +3,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include "base.h"
+#include <boost/thread.hpp>
+
 #define nbacktrace(to) \
     unw_cursor_t cursor;\
     unw_context_t context;\
@@ -125,7 +127,9 @@ int main(int argc, char **argv){
         return 0;
     }
     int integer = 222222222;
-    fun("oylzyonkenjanetjason", 110, integer, file, num, 111);
+    boost::thread th(boost::bind(fun, "oylzyonkenjanetjason", 110, integer, file, num, 111));
+    th.join();
+    //fun("oylzyonkenjanetjason", 110, integer, file, num, 111);
     
     // ff
     ff_node fn(new ff_node_n("Jason", 5));
