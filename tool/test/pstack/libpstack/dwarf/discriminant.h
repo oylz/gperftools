@@ -1,2 +1,0 @@
-DWARF_DISCRIM(DW_DSC_label, 0)
-DWARF_DISCRIM(DW_DSC_range, 1)
