@@ -3,7 +3,7 @@
 #include <boost/shared_ptr.hpp>
 #define UNW_LOCAL_ONLY
 #include <libunwind.h>
-
+#include <sys/syscall.h>
 
 struct ff_node_n{
     std::string name_;
@@ -47,6 +47,7 @@ typedef boost::shared_ptr<trace_node_n> trace_node;
 
 extern "C"{
     void backtrace(int to) __attribute__((no_instrument_function));
+    pid_t get_tid() __attribute__((no_instrument_function));
 }
 
 #endif

@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "base.h"
+#include "include/mm.h"
+#include <sys/ptrace.h> 
 
 extern "C"
 {
@@ -11,6 +13,41 @@ extern "C"
 #include <string.h>
 #include <string>
 #include <dlfcn.h>
+
+pid_t get_tid(){
+#if defined OS_LINUX || defined OS_MACOSX
+  #warning "GetTID11111"
+  #ifndef __NR_gettid
+    #warning "GetTID22222"
+    #ifdef OS_MACOSX
+      #define __NR_gettid SYS_gettid
+    #elif ! defined __i386__
+      #error "Must define __NR_gettid for non-x86 platforms"
+    #else
+      #define __NR_gettid 224
+    #endif
+  #endif
+  static bool lacks_gettid = false;
+  if (!lacks_gettid) {
+    pid_t tid = syscall(__NR_gettid);
+    if (tid != -1) {
+      #warning "GetTID33333"
+      return tid;
+    }
+    lacks_gettid = true;
+  }
+#endif
+
+#if defined OS_LINUX
+  return getpid(); 
+#elif defined OS_WINDOWS && !defined OS_CYGWIN
+  return GetCurrentThreadId();
+#else
+  #warning "GetTID44444"
+  return (pid_t)(int)pthread_self();
+#endif
+}
+
 
 int __read_small_file(const char *file, char **buf){
     unsigned long long rr = 0;
@@ -135,7 +172,27 @@ void __cyg_profile_func_enter(void *this_fn, void *call_site){
     else{
         return;
     }
-    backtrace(1);
+    //backtrace(1);
+    if(1){
+        int pid = getpid();
+        int tid = get_tid();
+        fprintf(stderr, "pid:%d, tid:%d\n", pid, tid);
+        //usleep(60*1000*1000);
+        #if 0
+        int child = vfork();
+        if(child < 0){
+            fprintf(stderr, "vfork error, exit\n");
+            exit(1);
+        }
+        else if(child == 0){
+            mm(pid, tid);
+            _exit(0);
+        } 
+        fprintf(stderr, "now child has exit, we continue...\n");
+        #else
+        mm(pid, pid);
+        #endif
+    }
     fprintf(stderr, "enter any key to continue...\n");
     char chr = getchar();
 }
@@ -204,7 +261,7 @@ void backtrace(int to) {
         }
     }
     // print tns
-    for(int i = to; i <= to+1; i++){
+    for(int i = 0; i <= to+1; i++){
         const trace_node &tn = tns[i];
         uint64_t rrdi = (tn->rdi_==0)?0:(*((uint64_t*)tn->rdi_));
         uint64_t rrsi = (tn->rsi_==0)?0:(*((uint64_t*)tn->rsi_));
