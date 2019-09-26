@@ -4,83 +4,70 @@
 #include <sys/types.h>
 #include "base.h"
 #include <boost/thread.hpp>
+#define __USE_GNU
+#include <ucontext.h>
 
-#define nbacktrace(to) \
-    unw_cursor_t cursor;\
-    unw_context_t context;\
-\
-    unw_getcontext(&context);\
-    unw_init_local(&cursor, &context);\
-\
-    \
-    std::vector<trace_node> tns;\
-\
-    while (unw_step(&cursor) > 0) {\
-        unw_word_t offset, pc;\
-        unw_get_reg(&cursor, UNW_REG_IP, &pc);\
-        if (pc == 0) {\
-          break;\
-        }\
-        unw_word_t sp = 0, eh = 0, last = 0, rdi = 0, rsi = 0, rdx = 0, rcx = 0; \
-        unw_get_reg(&cursor, UNW_REG_SP, &sp);\
-        unw_get_reg(&cursor, UNW_REG_EH, &eh);\
-        unw_get_reg(&cursor, UNW_REG_LAST, &last);\
-        unw_get_reg(&cursor, UNW_X86_64_RDI, &rdi);\
-        unw_get_reg(&cursor, UNW_X86_64_RSI, &rsi);\
-        unw_get_reg(&cursor, UNW_X86_64_RDX, &rdx);\
-        unw_get_reg(&cursor, UNW_X86_64_RCX, &rcx);\
-        int count = tns.size();\
-        if(count > 0){\
-            trace_node tn = tns[count-1];\
-            tn->size_ = sp - tn->sp_;\
-        }\
-\
-        char sym[256];\
-        if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {\
-            trace_node tn(new trace_node_n(sym, offset, sp, pc, eh, last, \
-                rdi, rsi, rdx, rcx));\
-            tns.push_back(tn);\
-        } else {\
-          fprintf(stderr, "\t-- error: unable to obtain symbol name for this frame\n");\
-        }\
-    }\
-    for(int i = to; i <= to+1; i++){\
-        const trace_node &tn = tns[i];\
-        uint64_t rrdi = (tn->rdi_==0)?0:(*((uint64_t*)tn->rdi_));\
-        uint64_t rrsi = (tn->rsi_==0)?0:(*((uint64_t*)tn->rsi_));\
-        uint64_t rrdx = 0;\
-        uint64_t rrcx = 0;\
-        fprintf(stderr, "\tpc:0x%lx, sp:%lx, eh:%lx, last:%lx, rdi:%lx(%lx), rsi:%lx(%lx), rdx:%lx(%lx), rcx:%lx(%lx)\n", \
-            tn->pc_, tn->sp_, tn->eh_, tn->last_, \
-            tn->rdi_, rrdi, tn->rsi_, rrsi, tn->rdx_, rrdx, tn->rcx_, rrcx);\
-        fprintf(stderr, "\t(%s+0x%lx)\n", tn->sym_.c_str(), tn->offset_);\
-        if(i == to+1){\
-            break;\
-        } \
-        {\
-            int count = tn->size_/8;\
-            uint64_t *spp = (uint64_t *)tn->sp_;\
-            for (int i=0; i<count; i++) {\
-                fprintf(stderr, "\t\t64=>*(spp + %d) = %lx\n", i, *(spp +i));\
-            }\
-        }\
-    }
+
+#define nprint_reg(in)\
+    fprintf(stderr, "\t\tin fun self section====%s:%lx\n", #in, in);
+
+#define NPP\
+        ucontext_t uc;\
+        getcontext(&uc); \
+        uint64_t reg0    = uc.uc_mcontext.gregs[REG_RAX];\
+        uint64_t reg1    = uc.uc_mcontext.gregs[REG_RDX];\
+        uint64_t reg2    = uc.uc_mcontext.gregs[REG_RCX];\
+        uint64_t reg3    = uc.uc_mcontext.gregs[REG_RBX];\
+        uint64_t reg4    = uc.uc_mcontext.gregs[REG_RSI];\
+        uint64_t reg5    = uc.uc_mcontext.gregs[REG_RDI];\
+        uint64_t reg6    = uc.uc_mcontext.gregs[REG_RBP];\
+        uint64_t reg7    = uc.uc_mcontext.gregs[REG_RSP];\
+        uint64_t reg8    = uc.uc_mcontext.gregs[REG_R8];\
+        uint64_t reg9    = uc.uc_mcontext.gregs[REG_R9];\
+        uint64_t reg10    = uc.uc_mcontext.gregs[REG_R10];\
+        uint64_t reg11    = uc.uc_mcontext.gregs[REG_R11];\
+        uint64_t reg12    = uc.uc_mcontext.gregs[REG_R12];\
+        uint64_t reg13    = uc.uc_mcontext.gregs[REG_R13]; \
+        uint64_t reg14    = uc.uc_mcontext.gregs[REG_R14]; \
+        uint64_t reg15    = uc.uc_mcontext.gregs[REG_R15]; \
+        uint64_t reg16    = uc.uc_mcontext.gregs[REG_RIP];    \
+        nprint_reg(reg0) \
+        nprint_reg(reg1)\
+        nprint_reg(reg2)\
+        nprint_reg(reg3)\
+        nprint_reg(reg4)\
+        nprint_reg(reg5)\
+        nprint_reg(reg6)\
+        nprint_reg(reg7)\
+        nprint_reg(reg8)\
+        nprint_reg(reg9)\
+        nprint_reg(reg10)\
+        nprint_reg(reg11)\
+        nprint_reg(reg12)\
+        nprint_reg(reg13)\
+        nprint_reg(reg14)\
+        nprint_reg(reg15)\
+        nprint_reg(reg16)
 
 void process(const ff_node &fn){
-    #if 0
-    fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
-    backtrace(0);
-    fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
-    #endif
     fprintf(stderr, "fn.addr:%lx, fn.get().addr:%lx, fn:(%s, %d)\n", &fn, fn.get(), fn->name_.c_str(), fn->age_);
 }
-int fun(const std::string &head, char chr, int integer, const std::string &file, uint64_t num, char nchr){
-    #if 0
-    fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
-    nbacktrace(0);
-    fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
+int fun0(char xxxxchr, char mmmm){
+    NPP
+    #ifdef PADDR
+    fprintf(stderr, "fun0 xxxxchr:%lx %x\n", &xxxxchr, xxxxchr);
+    #else
+    fprintf(stderr, "fun0 xxxxchr:%x, mmmm:%lx %x\n", xxxxchr, &mmmm, mmmm);
     #endif
-    fprintf(stderr, "head_ptr:%lx, chr:%x, integer:%x, file_ptr:%lx, num:%lx, nchr:%x\n", &head, chr, integer, &file, num, nchr);
+    return 1;
+}
+int fun(const std::string &head, char chr, int xxxxinteger, const std::string &file, uint64_t num, char xxxxnchr){
+    NPP
+    #ifdef PADDR
+    fprintf(stderr, "head_ptr:%lx, chr:%lx %x, xxxxinteger:%x, file_ptr:%lx, num:%lx, xxxxnchr:%lx %x\n", &head, &chr, chr, xxxxinteger, &file, num, &xxxxnchr, xxxxnchr);
+    #else
+    fprintf(stderr, "head_ptr:%lx, chr:%x, xxxxinteger:%x, file_ptr:%lx, num:%lx, xxxxnchr:%x\n", &head, chr, xxxxinteger, &file, num, xxxxnchr);
+    #endif
     FILE *fl = fopen(file.c_str(), "wb");
     if(fl == NULL){
         return 0;
@@ -93,19 +80,9 @@ int fun(const std::string &head, char chr, int integer, const std::string &file,
 class ff{
 public:
     void process(const ff_node &fn){
-        #if 0
-        fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
-        backtrace(0);
-        fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
-        #endif
         fprintf(stderr, "this:%lx, fn.addr:%lx, fn.get().addr:%lx, fn:(%s, %d)\n", this, &fn, fn.get(), fn->name_.c_str(), fn->age_);
     }
     void process(const std::string &str, uint64_t num, const ff_node &fn, char chr){
-        #if 0
-        fprintf(stderr, "\t^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
-        backtrace(0);
-        fprintf(stderr, "\tvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
-        #endif
         fprintf(stderr, "this:%lx, str.addr:%lx, num:%lx, fn.addr:%lx, fn.get().addr:%lx, fn:(%s, %d), chr:%x\n", this, &str, num, &fn, fn.get(), fn->name_.c_str(), fn->age_, chr);
     }
 };
@@ -126,11 +103,16 @@ int main(int argc, char **argv){
         fprintf(stderr, "usage:\n./main file nums(number)\n");
         return 0;
     }
-    int integer = 222222222;
-    boost::thread th(boost::bind(fun, "oylzyonkenjanetjason", 110, integer, file, num, 111));
+    int chr = 110;
+    boost::thread th0(boost::bind(fun0, chr, 111));
+    th0.join();
+    //getchar();
+
+    //int integer = 222222222;
+    boost::thread th(boost::bind(fun, "oylzyonkenjanetjason", 110, 222222222, file, num, 111));
     th.join();
     //fun("oylzyonkenjanetjason", 110, integer, file, num, 111);
-    
+    //getchar();    
     // ff
     ff_node fn(new ff_node_n("Jason", 5));
     ff f;
