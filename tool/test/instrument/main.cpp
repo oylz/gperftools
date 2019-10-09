@@ -53,7 +53,7 @@ void process(const ff_node &fn){
     fprintf(stderr, "fn.addr:%lx, fn.get().addr:%lx, fn:(%s, %d)\n", &fn, fn.get(), fn->name_.c_str(), fn->age_);
 }
 int fun0(char xxxxchr, char mmmm){
-    NPP
+    //NPP
     #ifdef PADDR
     fprintf(stderr, "fun0 xxxxchr:%lx %x\n", &xxxxchr, xxxxchr);
     #else
@@ -62,7 +62,7 @@ int fun0(char xxxxchr, char mmmm){
     return 1;
 }
 int fun(const std::string &head, char chr, int xxxxinteger, const std::string &file, uint64_t num, char xxxxnchr){
-    NPP
+    //NPP
     #ifdef PADDR
     fprintf(stderr, "head_ptr:%lx, chr:%lx %x, xxxxinteger:%x, file_ptr:%lx, num:%lx, xxxxnchr:%lx %x\n", &head, &chr, chr, xxxxinteger, &file, num, &xxxxnchr, xxxxnchr);
     #else
@@ -74,6 +74,9 @@ int fun(const std::string &head, char chr, int xxxxinteger, const std::string &f
     }
     fwrite(&num, 1, sizeof(num), fl); 
     fclose(fl);
+    fprintf(stderr, "enter any key to continue...\n");
+    getchar();
+
     return 1;
 }
 

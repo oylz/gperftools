@@ -190,11 +190,9 @@ void __cyg_profile_func_enter(void *this_fn, void *call_site){
         } 
         fprintf(stderr, "now child has exit, we continue...\n");
         #else
-        mm(pid, pid);
+        mm();
         #endif
     }
-    fprintf(stderr, "enter any key to continue...\n");
-    char chr = getchar();
 }
 
 
